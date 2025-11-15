@@ -42,3 +42,8 @@ next-env.d.ts
 
 
 .idea/
+
+# testing
+/.vitest-attachments/
+/tests/ui/__traces__/
+/tests/ui/__screenshots__/**/Render-*.png

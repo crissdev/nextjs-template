@@ -1,7 +1,9 @@
+import WelcomeMessage from '@/lib/ui/components/shared/welcome-message';
+
 export default function Home() {
   return (
     <div className="p-5">
-      <span className={'font-bold'}>Welcome!</span>
+      <WelcomeMessage />
     </div>
   );
 }
