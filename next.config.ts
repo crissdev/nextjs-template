@@ -1,6 +1,6 @@
 import type { NextConfig } from 'next';
 
-const nextConfig: NextConfig = {
+let nextConfig: NextConfig = {
   cacheComponents: true,
   reactCompiler: true,
 

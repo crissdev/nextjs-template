@@ -1,6 +1,6 @@
-const config = {
+let config = {
   plugins: {
-    "@tailwindcss/postcss": {},
+    '@tailwindcss/postcss': {},
   },
 };
 
