@@ -1,9 +1,10 @@
 import { execSync } from 'node:child_process';
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { afterEach, beforeEach, vi } from 'vitest';
 
+import { PrismaClient } from '@/lib/server/db/prisma/.generated/client';
 import { setPrismaClient } from '@/lib/server/db/prisma/prisma-client';
 
 vi.mock('next/server');
@@ -16,7 +17,7 @@ let containerImage = `postgres:${PG_VERSION}`;
 
 beforeEach(async () => {
   container = await new PostgreSqlContainer(containerImage).start();
-  setPrismaClient(new PrismaClient({ datasourceUrl: container.getConnectionUri() }));
+  setPrismaClient(new PrismaClient({ adapter: new PrismaPg({ connectionString: container.getConnectionUri() }) }));
 
   let databaseUrl = container.getConnectionUri();
   initDatabase(databaseUrl);

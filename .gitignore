@@ -47,3 +47,6 @@ next-env.d.ts
 /.vitest-attachments/
 /tests/ui/__traces__/
 /tests/ui/__screenshots__/**/Render-*.png
+
+# generated prisma client
+/src/lib/server/db/prisma/.generated/

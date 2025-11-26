@@ -1,9 +1,9 @@
-import { type PrismaClient, type Todo as PrismaTodo } from '@prisma/client';
 import {
   type PrismaClientInitializationError,
   type PrismaClientKnownRequestError,
-} from '@prisma/client/runtime/library';
+} from '@prisma/client/runtime/client';
 
+import { type PrismaClient, type Todo as PrismaTodo } from '@/lib/server/db/prisma/.generated/client';
 import { prisma } from '@/lib/server/db/prisma/prisma-client';
 import { type AddTodoInput } from '@/lib/server/db/store.service';
 import { DatabaseConnectionError, DatabaseError, UniqueConstraintError } from '@/lib/server/db/store-errors';

@@ -55,7 +55,10 @@ let eslintConfig = defineConfig([
     '.next/**',
     'out/**',
     'build/**',
+    'coverage/**',
     'next-env.d.ts',
+    '.*/**',
+    'src/lib/server/db/prisma/.generated/**',
   ]),
   prettierConfig,
   {
