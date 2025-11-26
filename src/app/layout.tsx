@@ -2,7 +2,7 @@ import './globals.css';
 
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { type ReactNode } from 'react';
+import { type ReactNode, Suspense } from 'react';
 
 // eslint-disable-next-line local/const-screaming-case-only
 const geistSans = Geist({
@@ -28,7 +28,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Suspense>{children}</Suspense>
+      </body>
     </html>
   );
 }
