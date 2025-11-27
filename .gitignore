@@ -2,13 +2,7 @@
 
 # dependencies
 /node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+/.pnp*
 
 # testing
 /coverage
@@ -17,17 +11,11 @@
 /.next/
 /out/
 
-# production
-/build
-
 # misc
 .DS_Store
 *.pem
 
 # debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
@@ -40,8 +28,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-
-.idea/
+# editor
+/.idea/
+/.vscode/
 
 # testing
 /.vitest-attachments/
