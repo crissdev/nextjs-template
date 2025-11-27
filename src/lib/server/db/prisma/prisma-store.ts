@@ -1,8 +1,3 @@
-import {
-  type PrismaClientInitializationError,
-  type PrismaClientKnownRequestError,
-} from '@prisma/client/runtime/client';
-
 import { type PrismaClient, type Todo as PrismaTodo } from '@/lib/server/db/prisma/.generated/client';
 import { prisma } from '@/lib/server/db/prisma/prisma-client';
 import { type AddTodoInput } from '@/lib/server/db/store.service';
@@ -70,10 +65,12 @@ async function performDatabaseAction<T = unknown>(action: (client: PrismaClient)
 }
 
 // Type guards for error types
-function isPrismaClientInitializationError(error: unknown): error is PrismaClientInitializationError {
+function isPrismaClientInitializationError(error: unknown): error is Error {
   return error instanceof Error && error.name === 'PrismaClientInitializationError';
 }
 
-function isPrismaClientKnownRequestError(error: unknown): error is PrismaClientKnownRequestError {
+function isPrismaClientKnownRequestError(
+  error: unknown,
+): error is Error & { code: string; meta?: { target: string[] } } {
   return error instanceof Error && error.name === 'PrismaClientKnownRequestError';
 }
