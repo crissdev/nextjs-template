@@ -3,7 +3,6 @@ import WelcomeMessage from '@/lib/ui/components/shared/welcome-message';
 
 export default async function Home() {
   let todos = await getTodos();
-  console.log(todos);
 
   return (
     <div className="p-5">
