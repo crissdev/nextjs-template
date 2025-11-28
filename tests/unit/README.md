@@ -25,4 +25,4 @@ pnpm run test:unit:coverage
 
 ### Configuration
 
-- No additional configuration required.
+- See [vitest-unit.config.ts](vitest-unit.config.ts) and [vitest-unit.setup.ts](vitest-unit.setup.ts).
