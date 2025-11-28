@@ -17,8 +17,9 @@ export class ValidationError extends ServiceError {
   constructor(
     public readonly issues: { path: PropertyKey[]; message: string }[],
     message = 'Validation failed',
+    options?: { cause?: Error },
   ) {
-    super(message);
+    super(message, options);
     this.name = 'ValidationError';
   }
 
@@ -26,6 +27,7 @@ export class ValidationError extends ServiceError {
     return new ValidationError(
       err.issues.map((issue) => ({ path: issue.path, message: issue.message, code: issue.code })),
       'Validation failed',
+      { cause: err },
     );
   }
 

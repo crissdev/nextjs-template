@@ -1,19 +1,20 @@
 import { type PrismaClient, type Todo as PrismaTodo } from '@/lib/server/db/prisma/.generated/client';
 import { prisma } from '@/lib/server/db/prisma/prisma-client';
 import { type AddTodoInput } from '@/lib/server/db/store.service';
-import { DatabaseConnectionError, DatabaseError, UniqueConstraintError } from '@/lib/server/db/store-errors';
+import { DatabaseError } from '@/lib/server/db/store-errors';
 import { type Todo } from '@/lib/server/services/todo.types';
 
 export async function addTodo(input: AddTodoInput): Promise<Todo> {
-  let result = await performDatabaseAction(() =>
-    prisma.todo.create({
+  let result = await performDatabaseAction(() => {
+    let currentDate = new Date();
+    return prisma.todo.create({
       data: {
         ...input,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: currentDate,
+        updatedAt: currentDate,
       },
-    }),
-  );
+    });
+  });
   return mapTodo(result);
 }
 
@@ -45,32 +46,10 @@ async function performDatabaseAction<T = unknown>(action: (client: PrismaClient)
   try {
     return await action(prisma);
   } catch (err) {
-    if (isPrismaClientInitializationError(err)) {
-      if (err.message.includes("Can't reach database server")) {
-        throw new DatabaseConnectionError(err.message, { cause: err });
-      }
+    if (err instanceof Error) {
+      if (err.name.startsWith('PrismaClient')) throw new DatabaseError('A database error occurred', { cause: err });
+      throw err;
     }
-    if (isPrismaClientKnownRequestError(err)) {
-      if (err.code === 'P2002')
-        throw new UniqueConstraintError(err.message, {
-          cause: err,
-          fields: err.meta?.target as string[] | undefined,
-        });
-    }
-
-    // todo: Handle other errors
-
-    throw new DatabaseError('A database error occurred', { cause: err as Error });
+    throw new DatabaseError('A database error occurred', { cause: new Error(String(err)) });
   }
-}
-
-// Type guards for error types
-function isPrismaClientInitializationError(error: unknown): error is Error {
-  return error instanceof Error && error.name === 'PrismaClientInitializationError';
-}
-
-function isPrismaClientKnownRequestError(
-  error: unknown,
-): error is Error & { code: string; meta?: { target: string[] } } {
-  return error instanceof Error && error.name === 'PrismaClientKnownRequestError';
 }

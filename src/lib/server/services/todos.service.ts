@@ -16,7 +16,7 @@ export async function getTodos() {
       return await store.getTodos();
     } catch (err) {
       if (isServiceError(err)) throw err;
-      throw new ServiceError('Failed to retrieve todos from database');
+      throw new ServiceError('Failed to retrieve todos from database', { cause: err as Error });
     }
   });
 }
@@ -29,7 +29,7 @@ export async function addTodo(title: string, completed: boolean): Promise<Todo> 
     });
   } catch (err) {
     if (isServiceError(err)) throw err;
-    throw new ServiceError('Failed to add todo');
+    throw new ServiceError('Failed to add todo', { cause: err as Error });
   }
 }
 
@@ -44,6 +44,8 @@ async function performStoreAction<T = unknown>(action: (store: Store) => Promise
     if (err instanceof DatabaseError) {
       console.error('Database error:', err.message, 'Cause:', (err.cause as Error | undefined)?.message ?? 'Unknown');
     }
+
+    // Throw the original error to give service methods a chance to handle to return a custom error message
     throw err;
   }
 }
