@@ -1,12 +1,12 @@
 import { faker } from '@faker-js/faker';
 import { expect, test, vi } from 'vitest';
 
-import { store } from '@/lib/server/db/store.service';
 import { ValidationError } from '@/lib/server/services/service-errors';
+import { store } from '@/lib/server/services/store.service';
 import { addTodo } from '@/lib/server/services/todos.service';
 
 // We don't need the real thing
-vi.mock('@/lib/server/db/store.service.ts');
+vi.mock('@/lib/server/services/store.service.ts');
 
 test('Return the added todo', async () => {
   let title = faker.lorem.words(2);

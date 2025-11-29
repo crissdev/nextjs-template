@@ -1,8 +1,8 @@
 import z, { ZodError } from 'zod';
 
-import { type Store, store } from '@/lib/server/db/store.service';
-import { DatabaseError } from '@/lib/server/db/store-errors';
 import { isServiceError, ServiceError, ValidationError } from '@/lib/server/services/service-errors';
+import { store } from '@/lib/server/services/store.service';
+import { DatabaseError } from '@/lib/server/services/store-errors';
 import { type Todo } from '@/lib/server/services/todo.types';
 
 let addTodoInputSchema = z.object({
@@ -23,9 +23,9 @@ export async function getTodos() {
 
 export async function addTodo(title: string, completed: boolean): Promise<Todo> {
   try {
-    return await performStoreAction(async (store) => {
+    return await performStoreAction(async () => {
       let input = addTodoInputSchema.parse({ title, completed });
-      return store.addTodo(input);
+      return await store.addTodo(input);
     });
   } catch (err) {
     if (isServiceError(err)) throw err;
@@ -34,9 +34,9 @@ export async function addTodo(title: string, completed: boolean): Promise<Todo> 
 }
 
 // Encapsulate store interaction and error handling
-async function performStoreAction<T = unknown>(action: (store: Store) => Promise<T>) {
+async function performStoreAction<T = unknown>(action: () => Promise<T>) {
   try {
-    return await action(store);
+    return await action();
   } catch (err) {
     if (err instanceof ZodError) {
       throw ValidationError.fromZodError(err);

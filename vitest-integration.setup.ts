@@ -17,10 +17,15 @@ let containerImage = `postgres:${PG_VERSION}`;
 
 beforeEach(async () => {
   container = await new PostgreSqlContainer(containerImage).start();
-  setPrismaClient(new PrismaClient({ adapter: new PrismaPg({ connectionString: container.getConnectionUri() }) }));
+  let connectionString = container.getConnectionUri();
 
-  let databaseUrl = container.getConnectionUri();
-  initDatabase(databaseUrl);
+  setPrismaClient(
+    new PrismaClient({
+      adapter: new PrismaPg({ connectionString }),
+    }),
+  );
+
+  initDatabase(connectionString);
 });
 
 afterEach(async () => {

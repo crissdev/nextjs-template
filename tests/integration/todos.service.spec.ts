@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 
 import { addTodo, getTodos } from '@/lib/server/services/todos.service';
 
-test('create todo', async () => {
+test('add todo', async () => {
   let addTodoResult = await addTodo('Learn Next.js', false);
   expect(addTodoResult).toEqual({
     id: expect.any(Number),
