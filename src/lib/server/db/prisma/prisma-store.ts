@@ -1,6 +1,6 @@
 import { type PrismaClient, type Todo as PrismaTodo } from '@/lib/server/db/prisma/.generated/client';
 import { prisma as prismaClient } from '@/lib/server/db/prisma/prisma-client';
-import { type AddTodoInput } from '@/lib/server/services/store.service';
+import { type AddTodoInput, type UpdateTodoInput } from '@/lib/server/services/store.service';
 import { DatabaseError } from '@/lib/server/services/store-errors';
 import { type Todo } from '@/lib/server/services/todo.types';
 
@@ -29,6 +29,32 @@ export async function getTodos(): Promise<Todo[]> {
     });
     return results.map(mapTodo);
   });
+}
+
+export async function deleteTodo(id: number): Promise<void> {
+  return await performDatabaseAction(async (client) => {
+    try {
+      await client.todo.delete({ where: { id }, select: { id: true } });
+    } catch (err) {
+      if (err instanceof Error && isRecordNotFoundError(err.cause)) {
+        return;
+      }
+      throw err;
+    }
+  });
+}
+
+export async function updateTodo(id: number, input: UpdateTodoInput): Promise<Todo> {
+  let result = await performDatabaseAction((client) => {
+    return client.todo.update({
+      where: { id },
+      data: {
+        ...input,
+        updatedAt: new Date(),
+      },
+    });
+  });
+  return mapTodo(result);
 }
 
 export async function runInTransaction<T = unknown>(callback: () => Promise<T>): Promise<T> {
@@ -70,9 +96,18 @@ async function performDatabaseAction<T = unknown>(action: (client: NonNullable<t
     return await action(currentTx ?? prismaClient);
   } catch (err) {
     if (err instanceof Error) {
-      if (err.name.startsWith('PrismaClient')) throw new DatabaseError('A database error occurred', { cause: err });
+      if (err.name.startsWith('PrismaClient')) {
+        if (isRecordNotFoundError(err)) {
+          throw new DatabaseError('The specified record does not exist', { cause: err });
+        }
+        throw new DatabaseError('A database error occurred', { cause: err });
+      }
       throw err;
     }
     throw new DatabaseError('A database error occurred', { cause: new Error(String(err)) });
   }
+}
+
+function isRecordNotFoundError(err: unknown): err is Error & { code: 'P2025' } {
+  return err instanceof Error && 'code' in err && err.code === 'P2025';
 }

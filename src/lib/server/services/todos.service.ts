@@ -5,9 +5,22 @@ import { store } from '@/lib/server/services/store.service';
 import { DatabaseError } from '@/lib/server/services/store-errors';
 import { type Todo } from '@/lib/server/services/todo.types';
 
+let idSchema = z.number().int().positive();
+let titleSchema = z.string().trim().min(1).max(30);
+let completedSchema = z.boolean();
+
 let addTodoInputSchema = z.object({
-  title: z.string().trim().min(1).max(30),
-  completed: z.boolean(),
+  title: titleSchema,
+  completed: completedSchema,
+});
+
+let deleteTodoInputSchema = z.object({
+  id: idSchema,
+});
+
+let toggleCompletedInputSchema = z.object({
+  id: idSchema,
+  completed: completedSchema,
 });
 
 export async function getTodos() {
@@ -24,12 +37,47 @@ export async function getTodos() {
 export async function addTodo(title: string, completed: boolean): Promise<Todo> {
   try {
     return await performStoreAction(async () => {
-      let input = addTodoInputSchema.parse({ title, completed });
-      return await store.addTodo(input);
+      // Using a transaction just as an example
+      return store.runInTransaction(async () => {
+        let input = addTodoInputSchema.parse({ title, completed });
+        return store.addTodo(input);
+      });
     });
   } catch (err) {
     if (isServiceError(err)) throw err;
     throw new ServiceError('Failed to add todo', { cause: err as Error });
+  }
+}
+
+export async function deleteTodo(id: number) {
+  try {
+    return await performStoreAction(async () => {
+      deleteTodoInputSchema.parse({ id });
+      return await store.deleteTodo(id);
+    });
+  } catch (err) {
+    if (isServiceError(err)) throw err;
+    throw new ServiceError('Failed to delete todo', { cause: err as Error });
+  }
+}
+
+export async function markTodoAsCompleted(id: number) {
+  return toggleCompleted(id, true);
+}
+
+export async function markTodoAsIncomplete(id: number) {
+  return toggleCompleted(id, false);
+}
+
+async function toggleCompleted(id: number, completed: boolean) {
+  try {
+    return await performStoreAction(async () => {
+      toggleCompletedInputSchema.parse({ id, completed });
+      return await store.updateTodo(id, { completed });
+    });
+  } catch (err) {
+    if (isServiceError(err)) throw err;
+    throw new ServiceError('Failed to delete todo', { cause: err as Error });
   }
 }
 

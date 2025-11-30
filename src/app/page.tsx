@@ -1,7 +1,8 @@
 import { connection } from 'next/server';
 import { Suspense } from 'react';
 
-import { getTodos } from '@/lib/server/services/todos.service';
+import AddTodoForm from '@/app/(todos)/add-todo-form';
+import { TodoList } from '@/app/(todos)/todo-list';
 import WelcomeMessage from '@/lib/ui/components/shared/welcome-message';
 
 export default async function Home() {
@@ -14,27 +15,10 @@ export default async function Home() {
       </div>
       <h2 className={'text-lg font-bold mb-2.5'}>Todos</h2>
       <Suspense>
+        <AddTodoForm />
+        <hr className={'my-5'} />
         <TodoList />
       </Suspense>
     </div>
-  );
-}
-
-async function TodoList() {
-  let todos = await getTodos();
-
-  if (todos.length === 0) {
-    return <p>No todos yet.</p>;
-  }
-
-  return (
-    <ul className={'grid grid-cols-[auto_50px] gap-4 max-w-max'}>
-      {todos.map((todo) => (
-        <div key={todo.id} className={'grid grid-cols-subgrid col-span-full'}>
-          <span className={'col-start-1'}>{todo.title}</span>
-          <span className={'col-start-2'}>{todo.completed ? '✓' : '𐄂'}</span>
-        </div>
-      ))}
-    </ul>
   );
 }
