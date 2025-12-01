@@ -4,7 +4,8 @@ import nextEnv from '@next/env';
 import z, { type ZodError } from 'zod';
 
 let envSchema = z.object({
-  // Add your environment variables schema here
+  DATABASE_URL: z.string().startsWith('postgres://'),
+  NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: z.string().length(44),
 });
 
 nextEnv.loadEnvConfig(process.cwd(), true);
