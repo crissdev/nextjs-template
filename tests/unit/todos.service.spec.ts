@@ -5,10 +5,11 @@ import { ValidationError } from '@/lib/server/services/service-errors';
 import { store } from '@/lib/server/services/store.service';
 import { addTodo } from '@/lib/server/services/todos.service';
 
-// We don't need the real thing
+// We don't need the real thing in unit tests
 vi.mock('@/lib/server/services/store.service.ts');
+vi.mocked(store.runInTransaction).mockImplementation(async (fn) => fn());
 
-test('Return the added todo', async () => {
+test('Add new todo', async () => {
   let title = faker.lorem.words(2);
   let completed = faker.datatype.boolean();
   let newId = faker.number.int();
