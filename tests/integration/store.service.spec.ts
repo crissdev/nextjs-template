@@ -47,10 +47,10 @@ test.sequential('no todos are added when the transaction is rolled back', async 
   await expect(store.getTodos()).resolves.toEqual([]);
 });
 
-// test.sequential('nested transactions are not supported', async () => {
-//   await expect(() => {
-//     store.runInTransaction(async () => {
-//       return store.runInTransaction(async () => {});
-//     });
-//   }).toThrow('Nested transactions are not supported');
-// });
+test.sequential('nested transactions are not supported', async () => {
+  await expect(() => {
+    return store.runInTransaction(async () => {
+      return store.runInTransaction(async () => {});
+    });
+  }).rejects.toThrow('Nested transactions are not supported');
+});
