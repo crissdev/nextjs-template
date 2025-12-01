@@ -8,13 +8,13 @@ component compositions.
 ### Run
 
 ```shell
-pnpm run test:browser
+pnpm run test:ui
 ```
 
 or, with coverage:
 
 ```shell
-pnpm run test:browser:coverage
+pnpm run test:ui:coverage
 ```
 
 These scripts invoke Vitest with the UI/browser configuration (`vitest-ui.config.ts`) which uses Playwright to run tests in an actual browser.
