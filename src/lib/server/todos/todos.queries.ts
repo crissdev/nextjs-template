@@ -1,6 +1,6 @@
 import { cacheLife, cacheTag } from 'next/cache';
 
-import { getTodos } from '@/lib/server/services/todos.service';
+import { todosService } from '@/lib/server';
 
 export const GET_TODOS_TAG = 'getTodos';
 
@@ -9,5 +9,5 @@ export async function queryTodos() {
   cacheTag(GET_TODOS_TAG);
   cacheLife('minutes');
 
-  return getTodos();
+  return todosService.getTodos();
 }

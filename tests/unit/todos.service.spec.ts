@@ -1,13 +1,29 @@
 import { faker } from '@faker-js/faker';
-import { expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 
-import { ValidationError } from '@/lib/server/services/service-errors';
-import { store } from '@/lib/server/services/store.service';
-import { addTodo } from '@/lib/server/services/todos.service';
+import { type Store } from '@/lib/server/interfaces/store';
+import { type TodosService } from '@/lib/server/todos/todos.interfaces';
+import { createTodosService } from '@/lib/server/todos/todos.service';
 
-// We don't need the real thing in unit tests
-vi.mock('@/lib/server/services/store.service.ts');
-vi.mocked(store.runInTransaction).mockImplementation(async (fn) => fn());
+class FakeStore implements Store {
+  addTodo = vi.fn<Store['addTodo']>();
+
+  getTodos = vi.fn<Store['getTodos']>();
+
+  deleteTodo = vi.fn<Store['deleteTodo']>();
+
+  updateTodo = vi.fn<Store['updateTodo']>();
+
+  runInTransaction = async <T = unknown>(callback: () => Promise<T>): Promise<T> => callback();
+}
+
+let store: Store;
+let todosService: TodosService;
+
+beforeEach(() => {
+  store = new FakeStore();
+  todosService = createTodosService(store);
+});
 
 test('Add new todo', async () => {
   let title = faker.lorem.words(2);
@@ -16,23 +32,20 @@ test('Add new todo', async () => {
 
   vi.mocked(store.addTodo).mockResolvedValueOnce({ id: newId, title, completed });
 
-  expect(await addTodo(title, completed)).toEqual({ id: newId, title, completed });
+  expect(await todosService.addTodo(title, completed)).toEqual({ id: newId, title, completed });
+  expect(store.addTodo).toHaveBeenCalledWith({ title, completed });
 });
 
 test.each(['', '  '])('Cannot add a todo without a title "%s"', async (title) => {
-  await expect(() => addTodo(title, true)).rejects.toThrow(
-    new ValidationError(
-      expect.arrayContaining([expect.objectContaining({ code: 'too_small', path: ['title'] })]),
-      'Validation failed',
-    ),
-  );
+  await expect(todosService.addTodo(title, true)).rejects.toMatchObject({
+    message: 'Validation failed',
+    issues: expect.arrayContaining([expect.objectContaining({ code: 'too_small', path: ['title'] })]),
+  });
 });
 
-test('Cannot add a todo with a title length grater than 30 characters', async () => {
-  await expect(() => addTodo(faker.lorem.words(30), true)).rejects.toThrow(
-    new ValidationError(
-      expect.arrayContaining([expect.objectContaining({ code: 'too_big', path: ['title'] })]),
-      'Validation failed',
-    ),
-  );
+test('Cannot add a todo with a title length greater than 30 characters', async () => {
+  await expect(todosService.addTodo(faker.lorem.words(30), true)).rejects.toMatchObject({
+    message: 'Validation failed',
+    issues: expect.arrayContaining([expect.objectContaining({ code: 'too_big', path: ['title'] })]),
+  });
 });

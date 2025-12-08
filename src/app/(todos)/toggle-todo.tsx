@@ -2,7 +2,7 @@
 
 import { startTransition, useActionState } from 'react';
 
-import { toggleTodoAction } from '@/lib/server/actions/todos.actions';
+import { toggleTodoAction } from '@/lib/server/todos/todos.actions';
 
 export default function ToggleTodo(props: { id: number; completed: boolean }) {
   let [, action, pending] = useActionState(async () => await toggleTodoAction(props.id, !props.completed), null);

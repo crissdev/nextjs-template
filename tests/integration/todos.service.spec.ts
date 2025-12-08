@@ -1,19 +1,13 @@
 import { faker } from '@faker-js/faker';
 import { expect, test } from 'vitest';
 
-import {
-  addTodo,
-  deleteTodo,
-  getTodos,
-  markTodoAsCompleted,
-  markTodoAsIncomplete,
-} from '@/lib/server/services/todos.service';
+import { todosService } from '@/lib/server';
 
 test('add todo', async () => {
   let todoTitle = faker.lorem.words(2);
   let todoCompleted = faker.datatype.boolean();
 
-  let addTodoResult = await addTodo(todoTitle, todoCompleted);
+  let addTodoResult = await todosService.addTodo(todoTitle, todoCompleted);
 
   expect(addTodoResult).toEqual({
     id: expect.any(Number),
@@ -21,7 +15,7 @@ test('add todo', async () => {
     completed: todoCompleted,
   });
 
-  let allTodos = await getTodos();
+  let allTodos = await todosService.getTodos();
   expect(allTodos).toEqual([
     {
       id: expect.any(Number),
@@ -32,21 +26,23 @@ test('add todo', async () => {
 });
 
 test('delete todo', async () => {
-  let { id } = await addTodo(faker.lorem.words(2), faker.datatype.boolean());
+  let { id } = await todosService.addTodo(faker.lorem.words(2), faker.datatype.boolean());
 
-  await deleteTodo(id);
+  await todosService.deleteTodo(id);
 
-  let allTodos = await getTodos();
+  let allTodos = await todosService.getTodos();
   expect(allTodos).toHaveLength(0);
 });
 
 test('toggle todo completed status', async () => {
   let title = faker.lorem.words(2);
   let completed = faker.datatype.boolean();
-  let todo = await addTodo(title, completed);
+  let todo = await todosService.addTodo(title, completed);
 
-  let updatedTodo = completed ? await markTodoAsIncomplete(todo.id) : await markTodoAsCompleted(todo.id);
+  let updatedTodo = completed
+    ? await todosService.markTodoAsIncomplete(todo.id)
+    : await todosService.markTodoAsCompleted(todo.id);
 
-  let todos = await getTodos();
+  let todos = await todosService.getTodos();
   expect(todos).toEqual([{ id: updatedTodo.id, title, completed: !completed }]);
 });

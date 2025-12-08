@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 
-import { addTodoAction } from '@/lib/server/actions/todos.actions';
+import { addTodoAction } from '@/lib/server/todos/todos.actions';
+import { Button } from '@/lib/ui/components/cn/button';
 
 export default function AddTodoForm() {
   let onAddTodo = async () => {
@@ -8,9 +9,5 @@ export default function AddTodoForm() {
     await addTodoAction(faker.lorem.words(2));
   };
 
-  return (
-    <button onClick={onAddTodo} className={'border rounded-md px-3 py-2 cursor-pointer hover:bg-gray-800'}>
-      Add Todo
-    </button>
-  );
+  return <Button onClick={onAddTodo}>Add Todo</Button>;
 }

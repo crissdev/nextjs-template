@@ -1,6 +1,5 @@
-import * as prismaStore from '@/lib/server/db/prisma/prisma-store';
-import { type Todo } from '@/lib/server/services/todo.types';
-import { type UnitOfWork } from '@/lib/server/services/unit-of-work';
+import { type UnitOfWork } from '@/lib/server/interfaces/unit-of-work';
+import type { Todo } from '@/lib/server/todos/todos.types';
 
 export type AddTodoInput = {
   title: string;
@@ -18,9 +17,3 @@ export interface Store extends UnitOfWork {
   deleteTodo(id: number): Promise<void>;
   updateTodo(id: number, input: UpdateTodoInput): Promise<Todo>;
 }
-
-export function setStore(implementation: Store) {
-  store = implementation;
-}
-
-export let store: Store = prismaStore;

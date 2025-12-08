@@ -1,4 +1,4 @@
-import { ValidationError } from '@/lib/server/services/service-errors';
+import { ValidationError } from '@/lib/server/validation-error';
 
 export enum ACTION_ERROR_CODE {
   VALIDATION_FAILED = 'VALIDATION_FAILED',
@@ -27,6 +27,22 @@ export type ActionResult<T = unknown> =
   | ActionErrorResult
   | (T extends void ? ActionSuccessResultVoid : ActionSuccessResult<T>);
 
+export type FormAction<T = unknown> = (
+  prevState: ActionResult<T> | undefined,
+  payload: FormData,
+) => Promise<ActionResult<T>>;
+
+export type TypedAction<T = unknown> = (payload: T) => Promise<ActionResult<T>>;
+
+export function toFormData<T extends object>(obj: T): FormData {
+  let formData = new FormData();
+  for (let [key, value] of Object.entries(obj)) {
+    if (value === undefined) continue;
+    formData.set(key, String(value));
+  }
+  return formData;
+}
+
 export function toActionSuccessResult(): ActionSuccessResultVoid;
 export function toActionSuccessResult<T>(data: T): ActionSuccessResult<T>;
 
@@ -44,7 +60,7 @@ export function toActionErrorResult(err: Error, code?: ACTION_ERROR_CODE): Actio
         code ??
         (err instanceof ValidationError ? ACTION_ERROR_CODE.VALIDATION_FAILED : ACTION_ERROR_CODE.INTERNAL_ERROR),
       message: err.message,
-      details: err instanceof ValidationError ? JSON.stringify(err.issues, null, 2) : undefined,
+      details: err instanceof ValidationError ? err.issues : undefined,
     },
   };
 }

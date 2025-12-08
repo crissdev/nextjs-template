@@ -1,6 +1,6 @@
 import TodoActions from '@/app/(todos)/todo-actions';
 import ToggleTodo from '@/app/(todos)/toggle-todo';
-import { queryTodos } from '@/lib/server/queries/todos.queries';
+import { queryTodos } from '@/lib/server/todos/todos.queries';
 
 export async function TodoList() {
   let todos = await queryTodos();
@@ -10,7 +10,7 @@ export async function TodoList() {
   }
 
   return (
-    <ul className={'grid grid-cols-[auto_50px_auto] gap-4 max-w-max'}>
+    <ul className={'grid grid-cols-[auto_90px_auto] gap-4 max-w-max'}>
       <div className={'grid grid-cols-subgrid col-span-full'}>
         <span className={'font-bold text-center'}>Title</span>
         <span className={'font-bold text-center'}>Completed</span>
@@ -18,9 +18,9 @@ export async function TodoList() {
       {todos.map((todo) => (
         <div key={todo.id} className={'grid grid-cols-subgrid items-center align-center col-span-full'}>
           <span className={'col-start-1'}>{todo.title}</span>
-          <span className={'col-start-2 justify-self-center'}>
+          <div className={'col-start-2 justify-self-center'}>
             <ToggleTodo id={todo.id} completed={todo.completed} />
-          </span>
+          </div>
           <div className={'col-start-3'}>
             <TodoActions id={todo.id} />
           </div>

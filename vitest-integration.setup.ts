@@ -5,14 +5,14 @@ import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testconta
 import { afterEach, beforeEach, vi } from 'vitest';
 
 import { PrismaClient } from '@/lib/server/db/prisma/.generated/client';
-import { setPrismaClient } from '@/lib/server/db/prisma/prisma-client';
+import { setPrismaClient } from '@/lib/server/db/prisma-client';
 
 vi.mock('next/server');
 vi.mock('next/cache');
 vi.mock('next/navigation');
 
 let container: StartedPostgreSqlContainer;
-const PG_VERSION = '16';
+const PG_VERSION = '17-alpine';
 let containerImage = `postgres:${PG_VERSION}`;
 
 beforeEach(async () => {
@@ -26,10 +26,10 @@ beforeEach(async () => {
   );
 
   initDatabase(connectionString);
-});
+}, 30_000);
 
 afterEach(async () => {
-  await container.stop();
+  await container?.stop();
 });
 
 function initDatabase(databaseUrl: string) {
