@@ -56,6 +56,8 @@ let eslintConfig = defineConfig([
     'out/**',
     'build/**',
     'coverage/**',
+    'playwright-report/**',
+    'test-results/**',
     'next-env.d.ts',
     '.*/**',
     'src/lib/server/db/prisma/.generated/**',
