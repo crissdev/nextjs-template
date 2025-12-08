@@ -31,12 +31,13 @@ next-env.d.ts
 
 # editor
 /.idea/
+/.junie/
 /.vscode/
 
 # testing
 /.vitest-attachments/
 /tests/ui/__traces__/
-/tests/ui/__screenshots__/**/Render-*.png
+/tests/ui/__screenshots__/
 
 # generated prisma client
 /src/lib/server/db/prisma/.generated/
