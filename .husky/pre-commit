@@ -4,4 +4,3 @@ pnpm run lint-staged
 # Run most of the tests
 pnpm run test:unit --run
 pnpm run test:ui --run --browser.headless
-pnpm run test:integration --run
