@@ -1,12 +1,7 @@
+import nextEnv from '@next/env';
 import { defineConfig, devices } from '@playwright/test';
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+nextEnv.loadEnvConfig(process.cwd(), process.env.NODE_ENV === 'development');
 
 export const PLAYWRIGHT_AUTH_STATE_PATH = './playwright/.auth/session.json';
 
