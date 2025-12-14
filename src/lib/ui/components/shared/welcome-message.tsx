@@ -1,3 +1,3 @@
 export default function WelcomeMessage() {
-  return <h1 className={'font-bold text-2xl'}>Welcome!</h1>;
+  return <h1 className={'text-2xl font-bold'}>Welcome!</h1>;
 }

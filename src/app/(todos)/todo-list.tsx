@@ -10,13 +10,13 @@ export async function TodoList() {
   }
 
   return (
-    <ul className={'grid grid-cols-[auto_90px_auto] gap-4 max-w-max'}>
-      <div className={'grid grid-cols-subgrid col-span-full'}>
-        <span className={'font-bold text-center'}>Title</span>
-        <span className={'font-bold text-center'}>Completed</span>
+    <ul className={'grid max-w-max grid-cols-[auto_90px_auto] gap-4'}>
+      <div className={'col-span-full grid grid-cols-subgrid'}>
+        <span className={'text-center font-bold'}>Title</span>
+        <span className={'text-center font-bold'}>Completed</span>
       </div>
       {todos.map((todo) => (
-        <div key={todo.id} className={'grid grid-cols-subgrid items-center align-center col-span-full'}>
+        <div key={todo.id} className={'align-center col-span-full grid grid-cols-subgrid items-center'}>
           <span className={'col-start-1'}>{todo.title}</span>
           <div className={'col-start-2 justify-self-center'}>
             <ToggleTodo id={todo.id} completed={todo.completed} />
