@@ -9,9 +9,10 @@ import { setPrismaClient } from '@/lib/server/db/prisma-client';
 
 vi.mock('server-only', () => ({}));
 vi.mock('client-only', () => ({}));
-vi.mock('next/server');
 vi.mock('next/cache');
+vi.mock('next/headers');
 vi.mock('next/navigation');
+vi.mock('next/server');
 
 let container: StartedPostgreSqlContainer;
 const PG_VERSION = '17-alpine';
