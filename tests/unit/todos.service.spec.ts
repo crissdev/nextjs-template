@@ -32,7 +32,7 @@ test('Add new todo', async () => {
 
   vi.mocked(store.addTodo).mockResolvedValueOnce({ id: newId, title, completed });
 
-  expect(await todosService.addTodo(title, completed)).toEqual({ id: newId, title, completed });
+  await expect(todosService.addTodo(title, completed)).resolves.toEqual({ id: newId, title, completed });
   expect(store.addTodo).toHaveBeenCalledWith({ title, completed });
 });
 
