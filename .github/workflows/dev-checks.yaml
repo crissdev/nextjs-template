@@ -1,0 +1,137 @@
+name: Development Checks
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  NEXT_PUBLIC_GIT_COMMIT_SHA: ${{ github.sha }}
+  NODE_ENV: production
+  NEXT_TELEMETRY_DISABLED: 1
+  VERCEL_TELEMETRY_DISABLED: 1
+on:
+  workflow_call:
+    secrets:
+      VERCEL_TOKEN:
+        required: true
+      VERCEL_ORG_ID:
+        required: true
+      VERCEL_PROJECT_ID:
+        required: true
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  Development-Checks:
+    concurrency:
+      # Avoid deadlock when this workflow is called from another workflow.
+      # - On push: group by ref and allow cancel-in-progress for fast feedback on feature branches.
+      # - On workflow_call: use a unique per-run group to avoid competing with the caller's concurrency lock.
+      group: ${{ github.event_name == 'push' && format('DevChecks-{0}', github.ref) || format('DevChecks-Called-{0}', github.run_id) }}
+      cancel-in-progress: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 'latest'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/.next/cache
+          # Generate a new cache whenever packages or source files change.
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          # If source files changed but packages didn't, rebuild from a prior cache.
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Pull Vercel Environment Information
+        run: pnpm vercel env pull --yes --environment=development --token=${{ secrets.VERCEL_TOKEN }} .env
+
+      - name: Generate Prisma Client
+        env:
+          DATABASE_URL: "postgres://postgres:postgres@localhost:5432/test_db"
+        run: pnpm prisma generate
+
+      - name: Apply Migrations
+        env:
+          DATABASE_URL: "postgres://postgres:postgres@localhost:5432/test_db"
+        run: pnpm prisma migrate deploy
+
+      - name: Seed Database
+        env:
+          DATABASE_URL: "postgres://postgres:postgres@localhost:5432/test_db"
+        run: pnpm prisma db seed
+
+      - name: Generate Next type definitions
+        run: pnpm next typegen
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit Tests
+        run: pnpm test:unit:coverage
+
+      - name: Component Tests
+        run: pnpm test:ui:coverage
+
+      - name: Integration Tests
+        run: pnpm test:integration:coverage
+
+      - name: Build
+        env:
+          DATABASE_URL: "postgres://postgres:postgres@localhost:5432/test_db"
+        run: pnpm build
+
+      - name: E2E Tests
+        env:
+          DATABASE_URL: "postgres://postgres:postgres@localhost:5432/test_db"
+        run: pnpm test:e2e:ci
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: component-test-screenshots
+          path: tests/ui/__screenshots__/
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: component-test-traces
+          path: tests/ui/__traces__/
+          retention-days: 30

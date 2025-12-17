@@ -1,0 +1,72 @@
+name: Deploy
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  NEXT_PUBLIC_GIT_COMMIT_SHA: ${{ github.sha }}
+  NODE_ENV: production
+  NEXT_TELEMETRY_DISABLED: 1
+  VERCEL_TELEMETRY_DISABLED: 1
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  Development-Checks:
+    name: Development Checks
+    uses: ./.github/workflows/dev-checks.yaml
+    secrets:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+  Deploy:
+    needs: Development-Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.next/cache
+          # Generate a new cache whenever packages or source files change.
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          # If source files changed but packages didn't, rebuild from a prior cache.
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Pull Vercel Environment Information
+        run: pnpm vercel env pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} .env
+
+      - name: Generate Prisma Client
+        run: pnpm prisma generate
+
+      - name: Apply Migrations
+        run: pnpm prisma migrate deploy
+
+      - name: Build Project Artifacts
+        run: pnpm vercel build --yes --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy Project Artifacts to Vercel
+        run: pnpm vercel deploy --yes --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: E2E Smoke Tests
+        env:
+          E2E_APP_BASE_URL: ${{ vars.E2E_APP_BASE_URL }}
+        run: pnpm run test:e2e --grep @smoke
+
