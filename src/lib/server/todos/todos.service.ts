@@ -1,5 +1,6 @@
 import z, { ZodError } from 'zod';
 
+import { loggerService } from '@/lib/server';
 import { DatabaseError } from '@/lib/server/db/database-error';
 import { type Store } from '@/lib/server/db/store';
 import { isServiceError, ServiceError } from '@/lib/server/service-error';
@@ -34,7 +35,12 @@ async function performStoreAction<T = unknown>(action: () => Promise<T>) {
       throw ValidationError.fromZodError(err);
     }
     if (err instanceof DatabaseError) {
-      console.error('Database error:', err.message, 'Cause:', (err.cause as Error | undefined)?.message ?? 'Unknown');
+      loggerService.error(
+        err,
+        'Database error: %s Cause: %s',
+        err.message,
+        (err.cause as Error | undefined)?.message ?? 'Unknown',
+      );
     }
 
     // Throw the original error to give service methods a chance to handle to return a custom error message
