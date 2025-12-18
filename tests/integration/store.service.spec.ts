@@ -12,7 +12,7 @@ function newTodo() {
 
 // Run the tests in sequence to avoid nested transaction error (as they are not supported)
 
-test.sequential('add two todos in a transaction and return them', async () => {
+test('add two todos in a transaction and return them', async () => {
   let firstTodo = newTodo();
   let secondTodo = newTodo();
 
@@ -33,7 +33,7 @@ test.sequential('add two todos in a transaction and return them', async () => {
   );
 });
 
-test.sequential('no todos are added when the transaction is rolled back', async () => {
+test('no todos are added when the transaction is rolled back', async () => {
   await expect(
     async () =>
       await storeService.runInTransaction(async () => {
@@ -47,7 +47,7 @@ test.sequential('no todos are added when the transaction is rolled back', async 
   await expect(storeService.getTodos()).resolves.toEqual([]);
 });
 
-test.sequential('nested transactions are not supported', async () => {
+test('nested transactions are not supported', async () => {
   await expect(() => {
     return storeService.runInTransaction(async () => {
       return storeService.runInTransaction(async () => {});

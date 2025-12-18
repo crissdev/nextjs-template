@@ -1,4 +1,4 @@
-import { type UnitOfWork } from '@/lib/server/interfaces/unit-of-work';
+import { type UnitOfWork } from '@/lib/server/db/unit-of-work';
 import type { Todo } from '@/lib/server/todos/todos.types';
 
 export type AddTodoInput = {

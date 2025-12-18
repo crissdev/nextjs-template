@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import { type Store } from '@/lib/server/interfaces/store';
+import { type Store } from '@/lib/server/db/store';
 import { type TodosService } from '@/lib/server/todos/todos.interfaces';
 import { createTodosService } from '@/lib/server/todos/todos.service';
 

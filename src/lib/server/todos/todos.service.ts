@@ -1,7 +1,7 @@
 import z, { ZodError } from 'zod';
 
 import { DatabaseError } from '@/lib/server/db/database-error';
-import { type Store } from '@/lib/server/interfaces/store';
+import { type Store } from '@/lib/server/db/store';
 import { isServiceError, ServiceError } from '@/lib/server/service-error';
 import { type TodosService } from '@/lib/server/todos/todos.interfaces';
 import { type Todo } from '@/lib/server/todos/todos.types';

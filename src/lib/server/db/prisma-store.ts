@@ -1,7 +1,7 @@
 import { DatabaseError } from '@/lib/server/db/database-error';
 import { type PrismaClient, type Todo as PrismaTodo } from '@/lib/server/db/prisma/.generated/client';
 import { prisma as prismaClient } from '@/lib/server/db/prisma-client';
-import { type AddTodoInput, type UpdateTodoInput } from '@/lib/server/interfaces/store';
+import { type AddTodoInput, type UpdateTodoInput } from '@/lib/server/db/store';
 import { type Todo } from '@/lib/server/todos/todos.types';
 
 let currentTx: null | Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$extends'> = null;
