@@ -66,7 +66,5 @@ jobs:
         run: pnpm vercel deploy --yes --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: E2E Smoke Tests
-        env:
-          E2E_APP_BASE_URL: ${{ vars.E2E_APP_BASE_URL }}
         run: pnpm run test:e2e --grep @smoke
 

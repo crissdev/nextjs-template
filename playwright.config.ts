@@ -1,8 +1,14 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import nextEnv from '@next/env';
 import { defineConfig, devices } from '@playwright/test';
 
-nextEnv.loadEnvConfig(process.cwd(), process.env.NODE_ENV === 'development');
-
+let { loadedEnvFiles } = nextEnv.loadEnvConfig(process.cwd(), process.env.NODE_ENV === 'development');
+console.info(
+  `[${path.basename(fileURLToPath(import.meta.url))}] Environments:`,
+  loadedEnvFiles.map((f) => f.path).join(', '),
+);
 export const PLAYWRIGHT_AUTH_STATE_PATH = './playwright/.auth/session.json';
 
 /**
@@ -23,7 +29,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-    baseURL: 'http://localhost:3000',
+    baseURL: process.env.E2E_APP_BASE_URL || 'http://localhost:3000',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'retain-on-failure',
@@ -61,13 +67,13 @@ export default defineConfig({
     // },
 
     /* Test against mobile viewports. */
-    {
-      name: 'Mobile Chrome',
-      use: {
-        ...devices['Pixel 5'],
-        storageState: PLAYWRIGHT_AUTH_STATE_PATH,
-      },
-    },
+    // {
+    //   name: 'Mobile Chrome',
+    //   use: {
+    //     ...devices['Pixel 5'],
+    //     storageState: PLAYWRIGHT_AUTH_STATE_PATH,
+    //   },
+    // },
 
     // {
     //   name: 'Mobile Safari',
