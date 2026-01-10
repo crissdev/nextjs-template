@@ -12,6 +12,7 @@ export type UpdateTodoInput = {
 };
 
 export interface Store extends UnitOfWork {
+  // Todos
   addTodo(input: AddTodoInput): Promise<Todo>;
   getTodos(): Promise<Todo[]>;
   deleteTodo(id: number): Promise<void>;
