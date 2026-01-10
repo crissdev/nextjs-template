@@ -5,17 +5,7 @@ import { type Store } from '@/lib/server/db/store';
 import { type TodosService } from '@/lib/server/todos/todos.interfaces';
 import { createTodosService } from '@/lib/server/todos/todos.service';
 
-class FakeStore implements Store {
-  addTodo = vi.fn<Store['addTodo']>();
-
-  getTodos = vi.fn<Store['getTodos']>();
-
-  deleteTodo = vi.fn<Store['deleteTodo']>();
-
-  updateTodo = vi.fn<Store['updateTodo']>();
-
-  runInTransaction = async <T = unknown>(callback: () => Promise<T>): Promise<T> => callback();
-}
+import { FakeStore } from './fakes/fake-store';
 
 let store: Store;
 let todosService: TodosService;
@@ -32,7 +22,7 @@ test('Add new todo', async () => {
 
   vi.mocked(store.addTodo).mockResolvedValueOnce({ id: newId, title, completed });
 
-  await expect(todosService.addTodo(title, completed)).resolves.toEqual({ id: newId, title, completed });
+  expect(await todosService.addTodo(title, completed)).toEqual({ id: newId, title, completed });
   expect(store.addTodo).toHaveBeenCalledWith({ title, completed });
 });
 
