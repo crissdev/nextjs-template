@@ -9,6 +9,7 @@ console.info(
   `[${path.basename(fileURLToPath(import.meta.url))}] Environments:`,
   loadedEnvFiles.map((f) => f.path).join(', '),
 );
+
 export const PLAYWRIGHT_AUTH_STATE_PATH = './playwright/.auth/session.json';
 
 /**

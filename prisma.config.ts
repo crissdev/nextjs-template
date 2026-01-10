@@ -1,10 +1,14 @@
-import { styleText } from 'node:util';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { loadEnvConfig } from '@next/env';
 import { defineConfig, env } from 'prisma/config';
 
 let { loadedEnvFiles } = loadEnvConfig(process.cwd(), process.env.NODE_ENV === 'development');
-console.info(styleText('cyan', '[prisma.config.ts]'), 'Environments:', loadedEnvFiles.map((f) => f.path).join(', '));
+console.info(
+  `[${path.basename(fileURLToPath(import.meta.url))}] Environments:`,
+  loadedEnvFiles.map((f) => f.path).join(', '),
+);
 
 export default defineConfig({
   schema: 'prisma/schema.prisma',

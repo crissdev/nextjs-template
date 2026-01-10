@@ -1,3 +1,5 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { styleText } from 'node:util';
 
 import nextEnv from '@next/env';
@@ -8,7 +10,11 @@ let envSchema = z.object({
   NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: z.string().length(44),
 });
 
-nextEnv.loadEnvConfig(process.cwd(), true);
+let { loadedEnvFiles } = nextEnv.loadEnvConfig(process.cwd(), true);
+console.info(
+  `[${path.basename(fileURLToPath(import.meta.url))}] Environments:`,
+  loadedEnvFiles.map((f) => f.path).join(', '),
+);
 
 try {
   envSchema.parse(process.env);
