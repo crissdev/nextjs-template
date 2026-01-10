@@ -32,7 +32,9 @@ export type FormAction<T = unknown> = (
   payload: FormData,
 ) => Promise<ActionResult<T>>;
 
-export type TypedAction<T = unknown> = (payload: T) => Promise<ActionResult<T>>;
+export type TypedAction<R = unknown, T = void> = T extends void
+  ? () => Promise<ActionResult<R>>
+  : (payload: T) => Promise<ActionResult<R>>;
 
 export function toFormData<T extends object>(obj: T): FormData {
   let formData = new FormData();
