@@ -4,6 +4,10 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [react()],
+  define: {
+    // https://github.com/vitest-dev/vitest/issues/6872#issuecomment-2461036768
+    'process.env': JSON.stringify({}),
+  },
   test: {
     browser: {
       enabled: true,
