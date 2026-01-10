@@ -79,11 +79,6 @@ jobs:
           DATABASE_URL: "postgres://postgres:postgres@localhost:5432/test_db"
         run: pnpm prisma migrate deploy
 
-      - name: Seed Database
-        env:
-          DATABASE_URL: "postgres://postgres:postgres@localhost:5432/test_db"
-        run: pnpm prisma db seed
-
       - name: Generate Next type definitions
         run: pnpm next typegen
 
@@ -109,6 +104,11 @@ jobs:
         env:
           DATABASE_URL: "postgres://postgres:postgres@localhost:5432/test_db"
         run: pnpm build
+
+      - name: Seed Database
+        env:
+          DATABASE_URL: "postgres://postgres:postgres@localhost:5432/test_db"
+        run: pnpm prisma db seed
 
       - name: E2E Tests
         env:

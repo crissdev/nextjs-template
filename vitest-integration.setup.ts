@@ -19,16 +19,21 @@ const PG_VERSION = '17-alpine';
 let containerImage = `postgres:${PG_VERSION}`;
 
 beforeEach(async () => {
-  container = await new PostgreSqlContainer(containerImage).start();
-  let connectionString = container.getConnectionUri();
+  try {
+    container = await new PostgreSqlContainer(containerImage).start();
+    let connectionString = container.getConnectionUri();
 
-  setPrismaClient(
-    new PrismaClient({
-      adapter: new PrismaPg({ connectionString }),
-    }),
-  );
+    setPrismaClient(
+      new PrismaClient({
+        adapter: new PrismaPg({ connectionString }),
+      }),
+    );
 
-  initDatabase(connectionString);
+    initDatabase(connectionString);
+  } catch (err) {
+    console.error('Is Docker running?');
+    throw err;
+  }
 }, 30_000);
 
 afterEach(async () => {
@@ -37,18 +42,10 @@ afterEach(async () => {
 
 function initDatabase(databaseUrl: string) {
   applyMigrations(databaseUrl);
-  seedDatabase(databaseUrl);
 }
 
 function applyMigrations(databaseUrl: string) {
   execSync('npx --no prisma migrate deploy', {
-    stdio: 'inherit',
-    env: { ...process.env, DATABASE_URL: databaseUrl },
-  });
-}
-
-function seedDatabase(databaseUrl: string) {
-  execSync('npx --no prisma db seed', {
     stdio: 'inherit',
     env: { ...process.env, DATABASE_URL: databaseUrl },
   });

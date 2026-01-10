@@ -42,9 +42,6 @@ async function seedTodos() {
 }
 
 async function main() {
-  if (process.env.NODE_ENV !== 'development') {
-    throw new Error('Seeding is only supported in development mode');
-  }
   await seedTodos();
 }
 
